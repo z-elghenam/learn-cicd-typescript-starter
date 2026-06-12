@@ -7,8 +7,13 @@ import { User } from "../db/schema.js";
 
 export async function handlerUsersCreate(req: Request, res: Response) {
   try {
-    const { name } = req.body;
-    const apiKey = generateRandomSHA256Hash();
+    const nameRaw = req.body?.name;
+    const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+    if (!name) {
+      return respondWithError(res, 400, "Invalid 'name' provided");
+    }
+
+    const apiKey = generateApiKey();
     const userId = uuidv4();
 
     await createUser({
@@ -22,10 +27,12 @@ export async function handlerUsersCreate(req: Request, res: Response) {
     if (user) {
       respondWithJSON(res, 201, user);
     } else {
+      console.error("User created but not found for apiKey", apiKey);
       respondWithError(res, 500, "Couldn't retrieve user");
     }
   } catch (err) {
-    respondWithError(res, 500, "Couldn't create user", err);
+    console.error(err);
+    respondWithError(res, 500, "Couldn't create user");
   }
 }
 
@@ -33,10 +40,6 @@ export async function handlerUsersGet(req: Request, res: Response, user: User) {
   respondWithJSON(res, 200, user);
 }
 
-function generateRandomSHA256Hash(): string {
-  // should we be using crypto.randomBytes instead of crypto.pseudoRandomBytes?
-  return crypto
-    .createHash("sha256")
-    .update(crypto.pseudoRandomBytes(32))
-    .digest("hex");
+function generateApiKey(): string {
+  return crypto.randomBytes(32).toString("hex");
 }
