@@ -38,17 +38,11 @@ jobs:
         run: |
           gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com --project=notely-499613
 
-      - name: Configure Docker for Artifact Registry
+      - name: Build and push Docker image using Cloud Build
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
-
-      - name: Build Docker image
-        run: |
-          docker build -t us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
-          docker push us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }}
+          gcloud builds submit \
+            --tag us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} \
+            --project=notely-499613
 
       - name: Deploy to Cloud Run
         run: |
