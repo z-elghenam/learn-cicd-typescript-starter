@@ -24,17 +24,6 @@ jobs:
       - name: Build the app
         run: npm run build
 
-      - name: Debug - List files
-        run: |
-          echo "=== Root directory ==="
-          ls -la
-          echo "=== src directory ==="
-          ls -la src/ || echo "src folder not found"
-          echo "=== dist directory ==="
-          ls -la dist/ || echo "dist folder not found"
-          echo "=== package.json ==="
-          cat package.json | head -20
-
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -45,8 +34,25 @@ jobs:
         with:
           project_id: notely-499613
 
-      - name: Build and push Docker image
+      - name: Configure Docker for Artifact Registry
         run: |
-          gcloud builds submit \
-            --tag us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} \
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build -t us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} .
+          docker tag us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:latest
+
+      - name: Push Docker image to Artifact Registry
+        run: |
+          docker push us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }}
+          docker push us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy notely-app \
+            --image us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
             --project=notely-499613
