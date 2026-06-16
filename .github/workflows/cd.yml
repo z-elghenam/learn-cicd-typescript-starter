@@ -23,3 +23,28 @@ jobs:
 
       - name: Build the app
         run: npm run build
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: notely-499613
+
+      - name: Build and push Docker image to Artifact Registry
+        run: |
+          gcloud builds submit \
+            --tag us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} \
+            --project=notely-499613
+
+      - name: Deploy to Cloud Run (Optional)
+        run: |
+          gcloud run deploy notely-app \
+            --image us-central1-docker.pkg.dev/notely-499613/notely-ar-repo/notely-app:${{ github.sha }} \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --project=notely-499613
