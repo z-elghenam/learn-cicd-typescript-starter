@@ -1,5 +1,5 @@
-# Use official Node.js image
-FROM node:18-alpine
+# Use official Node.js image (use a newer version)
+FROM node:20-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,14 +7,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci
 
-# Copy application code
-COPY dist ./dist
+# Copy source code
+COPY . .
 
-# Copy public assets if they exist
-COPY public ./public 2>/dev/null || true
+# Build the TypeScript code
+RUN npm run build
+
+# Remove dev dependencies to keep image small
+RUN npm prune --production
 
 # Expose port
 EXPOSE 8080
