@@ -1,11 +1,23 @@
-FROM --platform=linux/amd64 node:22-slim
+# Use official Node.js image
+FROM node:18-alpine
 
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /app
 
-ADD . .
+# Copy package files
+COPY package*.json ./
 
-RUN npm ci
+# Install dependencies
+RUN npm ci --only=production
 
-RUN npm run build
+# Copy application code
+COPY dist ./dist
 
+# Copy public assets if they exist
+COPY public ./public 2>/dev/null || true
+
+# Expose port
+EXPOSE 8080
+
+# Start the application
 CMD ["node", "dist/main.js"]
