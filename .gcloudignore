@@ -1,0 +1,26 @@
+# Ignore everything except necessary files
+/*
+!package.json
+!package-lock.json
+!Dockerfile
+!src/
+!tsconfig.json
+!.env.example
+!public/
+
+# Ignore these
+node_modules/
+dist/
+.git/
+.github/
+*.log
+.env
+*.md
+google-cloud-sdk/
+*.tar.gz
+*.json
+.DS_Store
+.vscode/
+.gitignore
+.dockerignore
+.gcloudignore

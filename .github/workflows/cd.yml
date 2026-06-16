@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # Changed from 18 to 20
+          node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
@@ -23,6 +23,17 @@ jobs:
 
       - name: Build the app
         run: npm run build
+
+      - name: Debug - List files
+        run: |
+          echo "=== Root directory ==="
+          ls -la
+          echo "=== src directory ==="
+          ls -la src/ || echo "src folder not found"
+          echo "=== dist directory ==="
+          ls -la dist/ || echo "dist folder not found"
+          echo "=== package.json ==="
+          cat package.json | head -20
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
