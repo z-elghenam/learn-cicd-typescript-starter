@@ -5,8 +5,9 @@ npm-debug.log
 .github
 .vscode
 *.md
-.gitignore
-google-cloud-sdk
+google-cloud-sdk/
 *.tar.gz
-*.json
 test-key.json
+.DS_Store
+*.log
+dist/

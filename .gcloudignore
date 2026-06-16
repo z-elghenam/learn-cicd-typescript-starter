@@ -1,0 +1,13 @@
+node_modules/
+.git/
+.github/
+google-cloud-sdk/
+*.tar.gz
+*.json
+test-key.json
+.DS_Store
+*.log
+.env
+.gitignore
+.dockerignore
+.gcloudignore
