@@ -1,28 +1,24 @@
-# Use official Node.js image
 FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (better caching)
+# Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including dev dependencies for build)
+# Install dependencies
 RUN npm ci
 
-# Copy source code
+# Copy source code and config files
 COPY src ./src
 COPY tsconfig.json ./
-COPY public ./public 2>/dev/null || true
 
 # Build the TypeScript code
 RUN npm run build
 
-# Remove dev dependencies to keep image small
+# Remove dev dependencies
 RUN npm prune --production
 
-# Expose port
 EXPOSE 8080
 
-# Start the application
+# Run with ES modules
 CMD ["node", "dist/main.js"]
